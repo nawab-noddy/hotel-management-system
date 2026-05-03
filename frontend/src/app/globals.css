@@ -5,43 +5,38 @@
   --foreground: #0f172a;
 }
 
+/* Stunning Mesh Gradient Background */
 body {
-  background-color: var(--background);
+  background-color: #f0f4f8;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.05) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.05) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.05) 0, transparent 50%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* Force inputs to always have dark text */
 input, select, textarea {
   color: #111827 !important;
 }
 
-/* Custom Page Transition Animations */
 @keyframes fade-in-up {
-  0% {
-    opacity: 0;
-    transform: translateY(30px) scale(0.98);
-    filter: blur(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
-  }
+  0% { opacity: 0; transform: translateY(30px) scale(0.98); filter: blur(10px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
 }
 
 .animate-page-enter {
   animation: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Staggered Row Animation for Tables */
 @keyframes slide-in-row {
   0% { opacity: 0; transform: translateX(-20px); }
   100% { opacity: 1; transform: translateX(0); }
 }
 
 .animate-row {
-  opacity: 0; /* Hidden by default until animation runs */
+  opacity: 0;
   animation: slide-in-row 0.5s ease-out forwards;
 }

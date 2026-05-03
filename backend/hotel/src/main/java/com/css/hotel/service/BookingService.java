@@ -32,6 +32,12 @@ public class BookingService {
 
     @Transactional
     public Booking createBooking(BookingRequestDTO request) {
+
+        // BUG FIX: Date Validation
+        if (request.getCheckOutDate().isBefore(request.getCheckInDate()) || request.getCheckOutDate().isEqual(request.getCheckInDate())) {
+            throw new RuntimeException("Invalid Dates: Check-out date must be after the Check-in date.");
+        }
+
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new RuntimeException("Room not found"));
 
@@ -64,8 +70,9 @@ public class BookingService {
         BigDecimal remaining = totalCharge.subtract(advance);
         booking.setRemainingBalance(remaining);
 
-        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+        if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
             booking.setPaymentStatus(PaymentStatus.PAID);
+            booking.setRemainingBalance(BigDecimal.ZERO);
         } else if (advance.compareTo(BigDecimal.ZERO) > 0) {
             booking.setPaymentStatus(PaymentStatus.PARTIAL);
         } else {
@@ -78,12 +85,10 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    // Fetch all bookings to show on the frontend
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
 
-    // Handle the Checkout Process
     @Transactional
     public Booking processCheckout(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -93,14 +98,10 @@ public class BookingService {
             throw new RuntimeException("Guest is already checked out!");
         }
 
-        // Update Payment Status (Assume remaining payment is collected at checkout)
         booking.setPaymentStatus(PaymentStatus.PAID);
         booking.setRemainingBalance(BigDecimal.ZERO);
-
-        // Mark Booking as Completed
         booking.setBookingStatus(BookingStatus.COMPLETED);
 
-        // Free up the Room (Make it Available again)
         Room room = booking.getRoom();
         room.setStatus(RoomStatus.AVAILABLE);
         roomRepository.save(room);
